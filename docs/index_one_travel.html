@@ -6,8 +6,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/>
     <script src="//d3js.org/topojson.v1.js"></script>
     <script src="//d3js.org/d3.v4.js" charset="utf-8"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
     <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
     <style media="screen">
     #map {
         width: 100%;
@@ -27,32 +27,57 @@
         .await(function(error, estaciones, xhrBikes) {
 
             var csv = dsv.parse(xhrBikes.responseText)
-            // console.log(csv);
-            var map = L.map('map').setView([43.3609723,-8.4152847], 13  );
+            
+            var map = L.map('map').setView([43.3609723,-8.4152847], 13);
 
             L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
               	maxZoom: 19,
               	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
             }).addTo(map);
             
-            for (var i = 0; i < estaciones.data.length; i++) {
-              var el = estaciones.data[i];
-              var coor = el.Feed.geometry.coordinates;
-
-                L.marker([coor[1], coor[0]]).addTo(map)
-                  .bindPopup(el.Feed.assetName)
-                  
-            }
             var filtered = csv.filter(function(d){
-                return d.ID_ORIGEN == d.ID_DESTINO;
+                return d.ID_ORIGEN == d.ID_DESTINO && !isNaN(d.ID_DESTINO);
             })
+            
             var byStops = d3.nest()
                 .key(function(d){
-                    return d.ORIGEN;
+                    return d.ID_ORIGEN;
                 })
                 .entries(filtered);
             
-            console.log(byStops);
+            var byIds = [];
+            var max = 0;
+            
+    
+            byStops.forEach(function(d){
+                    byIds[d.key] = d;
+                    max = d.values.length > max ? d.values.length : max;
+                })
+            
+            for (var i = 0; i < estaciones.data.length; i++) {
+              var el = estaciones.data[i],
+                  idEstacion = el.Feed.assetId,
+                  titulo = el.Feed.assetName,
+                  coor = el.Feed.geometry.coordinates,
+                  intensity = 0;
+
+                if (byIds[idEstacion]!= undefined) {
+                    
+                    titulo += ": " + byIds[idEstacion].values.length + " viajes";
+                    intensity = (byIds[idEstacion].values.length / max);
+                    console.log(intensity, byIds[idEstacion].values.length, max);
+                }
+                L.marker([coor[1], coor[0]]).addTo(map)
+                  .bindPopup(titulo)
+                
+                var heat = L.heatLayer([
+                  	[coor[1], coor[0], intensity] // lat, lng, intensity
+                  ], {
+                      radius: 25,
+                      maxZoom: map._zoom,
+                  }).addTo(map);
+                  
+            }
         });
 
 
