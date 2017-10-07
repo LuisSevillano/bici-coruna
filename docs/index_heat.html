@@ -1,61 +1,89 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
     <title></title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+          integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+          crossorigin=""/>
     <script src="//d3js.org/topojson.v1.js"></script>
     <script src="//d3js.org/d3.v4.js" charset="utf-8"></script>
-    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+            integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+            crossorigin=""></script>
+    <script src="leaflet-heat.js"></script>
+
     <style media="screen">
-    #map {
-        width: 100%;
-        height: 580px;
-    }
+        #map {
+            width: 100%;
+            height: 580px;
+        }
     </style>
-  </head>
-  <body>
-  <div id="map"></div>
-  <script>
+</head>
+<body>
+<div id="map"></div>
+<script>
 
     var dsv = d3.dsvFormat(";", "utf-8");
 
     d3.queue()
         .defer(d3.json, 'estaciones.json')
         .defer(d3.request, "hackatino_2017_bicicoruna.csv")
-        .await(function(error, estaciones, xhrBikes) {
+        .await(function (error, estaciones, xhrBikes) {
 
             var csv = dsv.parse(xhrBikes.responseText)
             var data = getPositionsIntensity(estaciones, csv);
             console.log(data);
-            var map = L.map('map').setView([43.3609723,-8.4152847], 13  );
+            var map = L.map('map').setView([43.3609723, -8.4152847], 13);
 
             L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-              	maxZoom: 19,
-              	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
             }).addTo(map);
-            
+
             for (var i = 0; i < estaciones.data.length; i++) {
-              var el = estaciones.data[i];
-              var coor = el.Feed.geometry.coordinates;
+                var el = estaciones.data[i];
+                var coor = el.Feed.geometry.coordinates;
 
                 L.marker([coor[1], coor[0]]).addTo(map)
-                  .bindPopup(el.Feed.assetName)
-                  
+                    .bindPopup(el.Feed.assetName)
+
             }
+
+            var addressPoints = getPositionsIntensity(estaciones, csv);
+            console.log(addressPoints)
+            var addressPoints2 = [
+                [43.34041976928711, -8.404894828796387, "571"],
+                [43.34041976928711, -8.404894828796387, "571"],
+                [43.34041976928711, -8.404894828796387, "571"],
+                [43.34041976928711, -8.404894828796387, "571"],
+                [43.37440490722656, -8.431958198547363, "571"],
+                [43.37440490722656, -8.431958198547363, "571"],
+                [43.37440490722656, -8.431958198547363, "571"],
+                [43.37440490722656, -8.431958198547363, "571"],
+                [43.37440490722656, -8.431958198547363, "571"],
+                [43.37440490722656, -8.431958198547363, "571"],
+                [43.37440490722656, -8.431958198547363, "571"],
+                [43.37440490722656, -8.431958198547363, "571"],
+            ]
+            console.log(addressPoints2)
+            addressPoints = addressPoints.map(function (p) {
+                return [p[0], p[1]];
+            });
+            var heat = L.heatLayer(addressPoints, {radius: 25, maxZoom: 13}).addTo(map).addTo(map);
         });
 
-function getPositionsIntensity(estaciones, csv) {
-    var addressPoints = new Array();
-    console.log(estaciones);
-    
-    estaciones.data.forEach(function(element) {
-        addressPoints.push(element.Feed.geometry.coordinates['1'], element.Feed.geometry.coordinates['0'], "1000");
-    });
+    function getPositionsIntensity(estaciones, csv) {
+        var addressPoints = new Array();
+        //console.log(estaciones);
 
-    return addressPoints;
-}
-    
-  </script>
-  </body>
+        estaciones.data.forEach(function (element) {
+            addressPoints.push([element.Feed.geometry.coordinates['1'], element.Feed.geometry.coordinates['0'], "571"]);
+        });
+
+        return addressPoints;
+    }
+
+</script>
+</body>
 </html>
