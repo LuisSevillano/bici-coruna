@@ -74,12 +74,21 @@
         });
 
     function getPositionsIntensity(estaciones, csv) {
+        var coordinates = {};
         var addressPoints = new Array();
-        //console.log(estaciones);
 
         estaciones.data.forEach(function (element) {
-            addressPoints.push([element.Feed.geometry.coordinates['1'], element.Feed.geometry.coordinates['0'], "571"]);
+                coordinates[element.Feed.assetId] = [element.Feed.geometry.coordinates['1'], element.Feed.geometry.coordinates['0'], "571"];
+            }
+        );
+
+        console.log(coordinates);
+
+        csv.forEach(function (t) {
+            addressPoints.push(coordinates[t.ID_ORIGEN]);
         });
+
+        console.log(addressPoints)
 
         return addressPoints;
     }
