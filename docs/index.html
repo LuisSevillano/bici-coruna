@@ -2,50 +2,20 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title></title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css" integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ==" crossorigin=""/>
-    <script src="//d3js.org/topojson.v1.js"></script>
-    <script src="//d3js.org/d3.v4.js" charset="utf-8"></script>
-    <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
-    <style media="screen">
-    #map {
-        width: 100%;
-        height: 580px;
-    }
-    </style>
+    <title>Mapas de calor para BiciCoruña</title>
   </head>
   <body>
-  <div id="map"></div>
-  <script>
+  <h1>HACKATHIÑO MOBILIDADE SOSTIBLE</h1>
+  <br>
+  <h3>Mapas de calor para BiciCoruña</h3>
+  <br>
 
-    var dsv = d3.dsvFormat(";", "utf-8");
+  - <a href="index_heat.html">Mapa de calor do uso</a>
+  <br>
+  - <a href="index_one_travel.html">Mapa de calor viaxes co mesmo inicio e saida</a>
+  <br>
+  - <a href="index_heat_animated.html">Mapa de calor uso animado</a>
+  <br>
 
-    d3.queue()
-        .defer(d3.json, 'estaciones.json')
-        .defer(d3.request, "hackatino_2017_bicicoruna.csv")
-        .await(function(error, estaciones, xhrBikes) {
-
-            var csv = dsv.parse(xhrBikes.responseText)
-            console.log(csv);
-            var map = L.map('map').setView([43.3609723,-8.4152847], 13  );
-
-            L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-              	maxZoom: 19,
-              	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
-            }).addTo(map);
-            
-            for (var i = 0; i < estaciones.data.length; i++) {
-              var el = estaciones.data[i];
-              var coor = el.Feed.geometry.coordinates;
-
-                L.marker([coor[1], coor[0]]).addTo(map)
-                  .bindPopup(el.Feed.assetName)
-                  
-            }
-        });
-
-
-    
-  </script>
   </body>
 </html>

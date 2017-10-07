@@ -13,6 +13,9 @@
         width: 100%;
         height: 580px;
     }
+    .leaflet-popup-content-wrapper {
+        border-radius: 1px;
+    }
     </style>
   </head>
   <body>
@@ -28,7 +31,13 @@
 
             var csv = dsv.parse(xhrBikes.responseText)
             
-            var map = L.map('map').setView([43.3609723,-8.4152847], 13);
+            var markers = L.layerGroup(),
+                circles = L.layerGroup(),
+                heatPoints = L.layerGroup();
+
+            var map = L.map('map',{
+                          layers: [circles]
+                      }).setView([43.3609723,-8.4152847], 13);
 
             L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
               	maxZoom: 19,
@@ -65,39 +74,50 @@
             var radius = d3.scaleSqrt()
                 .domain([0, max])
                 .range([0, 400]);
-            
+
             for (var i = 0; i < estaciones.data.length; i++) {
-              var el = estaciones.data[i],
-                  idEstacion = el.Feed.assetId,
-                  titulo = el.Feed.assetName,
-                  coor = el.Feed.geometry.coordinates,
-                  intensity = 0;
+                var el = estaciones.data[i],
+                    idEstacion = el.Feed.assetId,
+                    titulo = "<b>" + el.Feed.assetName + "</b>",
+                    coor = el.Feed.geometry.coordinates,
+                    intensity = 0;
 
                 if (byIds[idEstacion]!= undefined) {
                     
                     titulo += ": " + byIds[idEstacion].values.length + " viajes";
                     intensity = (byIds[idEstacion].values.length / max);
-                    
-                    L.circle([coor[1], coor[0]], radius(byIds[idEstacion].values.length), {
-                  		color: 'white',
-                  		fillColor: 'steelblue',
-                  		fillOpacity: 0.5,
-                      weight:.7
-                  	}).addTo(map).bindPopup(titulo);
-                }
-                // Marcadores por defecto
-                // L.marker([coor[1], coor[0]]).addTo(map)
-                //   .bindPopup(titulo)
 
-                // Heatmap
-                // var heat = L.heatLayer([
-                //   	[coor[1], coor[0], intensity] // lat, lng, intensity
-                //   ], {
-                //       radius: 25,
-                //       maxZoom: map._zoom,
-                //   }).addTo(map);
-                  
+                    // Marcadores por defecto
+                    L.marker([coor[1], coor[0]])
+                     .bindPopup(titulo).addTo(markers)
+                    
+                    // Círculos
+                    L.circle([coor[1], coor[0]], radius(byIds[idEstacion].values.length), {
+                    		 color: 'white',
+                    		 fillColor: 'steelblue',
+                    		 fillOpacity: 0.5,
+                         weight:.7
+                  	 })
+                     .bindPopup(titulo)
+                     .addTo(circles)
+
+                    // Heatmap
+                    L.heatLayer([
+                      	[coor[1], coor[0], intensity] // lat, lng, intensity
+                      ], {
+                          radius: 25,
+                          maxZoom: map._zoom,
+                      })
+                    .addTo(heatPoints)
+                }
             }
+            var overlays = {
+            	 "Estaciones": markers,
+            	 "Círculos": circles,
+            	 "Heatmap": heatPoints,
+            };
+            L.control.layers(overlays).addTo(map);
+            
         });
 
 
