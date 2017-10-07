@@ -8,17 +8,27 @@
     <script src="//d3js.org/d3.v4.js" charset="utf-8"></script>
     <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js" integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log==" crossorigin=""></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <style media="screen">
     #map {
         width: 100%;
-        height: 580px;
+        height: 480px;
     }
     </style>
   </head>
   <body>
   	<div id="map"></div>
-  </body>
+	<input type="number" id="userId" placeholder="9057"><br>
+	<input type="button" id="buttonSelectUserId" value="Cambiar Usuario" class="btn"/>
+  	<div id="legends"></div>
   <script>
+
+	$(document).on('click', '#buttonSelectUserId', function() {
+	    var name = document.getElementById("userId").value;
+	    if (name != undefined && name != null) {
+	        window.location = '?user=' + name;
+	    }
+	});
 
 	function getParameterByName(name, url) {
 	    if (!url) url = window.location.href;
@@ -65,58 +75,57 @@
                 return d.USUARIO == userId && !isNaN(d.ID_DESTINO) && isTravel;
             })
             
-            var byStops = d3.nest()
+            if (filtered.length > 0){
+            	var byStops = d3.nest()
                 .key(function(d){
                     return d.ID_ORIGEN;
                 })
                 .entries(filtered);
-          
-            var stopsByIds = [];
-            var max = 0;
-            byStops.forEach(function(d){
-                    stopsByIds[d.key] = d;
-                    max = d.values.length > max ? d.values.length : max;
-                })
-
-            var radius = d3.scaleSqrt()
-                .domain([0, max])
-                .range([0, 400]);
             
-            for (var i = 0; i < estaciones.data.length; i++) {
-              var el = estaciones.data[i],
-                  idEstacion = el.Feed.assetId,
-                  titulo = el.Feed.assetName,
-                  coor = el.Feed.geometry.coordinates,
-                  intensity = 0;
+	            var stopsByIds = [];
+	            var max = 0;
+	            var totalTravel = 0;
+	            
+	            byStops.forEach(function(d){
+	                    stopsByIds[d.key] = d;
+	                    max = d.values.length > max ? d.values.length : max;
+	                    totalTravel += d.values.length;
+	                })
+	            var radius = d3.scaleSqrt()
+	                .domain([0, max])
+	                .range([100, 400]);
+	            
+	            for (var i = 0; i < estaciones.data.length; i++) {
+	              var el = estaciones.data[i],
+	                  idEstacion = el.Feed.assetId,
+	                  titulo = el.Feed.assetName,
+	                  coor = el.Feed.geometry.coordinates,
+	                  intensity = 0;
 
-                if (byIds[idEstacion]!= undefined) {
-                    
-                    titulo += ": " + byIds[idEstacion].values.length + " viajes";
-                    intensity = (byIds[idEstacion].values.length / max);
-                    
-                    //L.circle([coor[1], coor[0]], radius(byIds[idEstacion].values.length), {
-                  	//	color: 'white',
-                  	//	fillColor: 'steelblue',
-                  	//	fillOpacity: 0.5,
-                    //  weight:.7
-                  	//}).addTo(map).bindPopup(titulo);
-                }
-                // Marcadores por defecto
-                L.marker([coor[1], coor[0]]).addTo(map)
-                  .bindPopup(titulo)
+	                if (stopsByIds[idEstacion]!= undefined) {
+	                    
+	                    titulo += ": " + stopsByIds[idEstacion].values.length + " viajes";
+	                    intensity = (stopsByIds[idEstacion].values.length / max);
 
-                // Heatmap
-                var heat = L.heatLayer([
-                  	[coor[1], coor[0], intensity] // lat, lng, intensity
-                  ], {
-                      radius: 25,
-                      maxZoom: map._zoom,
-                  }).addTo(map);
-                  
+	                    //If intensity is very poor, we add intensity minimal 0.4
+						intensity = intensity < 0.4 ? 0.4 : intensity;
+	                    // Heatmap
+	                    var heat = L.heatLayer([
+		                  	[coor[1], coor[0], intensity] // lat, lng, intensity
+		                  ], {
+		                      radius: 25,
+		                      maxZoom: map._zoom,
+		                  }).addTo(map);
+	                }
+	                // Marcadores por defecto
+	                L.marker([coor[1], coor[0]]).addTo(map)
+	                  .bindPopup(titulo)                  
+	            }
+	            document.getElementById("legends").innerHTML = 'Has salido de '+ byStops.length + ' estaciones y has hecho un total de ' + totalTravel + ' salidas';
+            }else {
+            	document.getElementById("legends").innerHTML = 'No hay registros para este usuario id';
             }
         });
-
-
-    
   </script>
+</body>
 </html>
