@@ -33,7 +33,6 @@
 
             var csv = dsv.parse(xhrBikes.responseText)
             var data = getPositionsIntensity(estaciones, csv);
-            console.log(data);
             var map = L.map('map').setView([43.3609723, -8.4152847], 13);
 
             L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
@@ -51,44 +50,34 @@
             }
 
             var addressPoints = getPositionsIntensity(estaciones, csv);
-            console.log(addressPoints)
-            var addressPoints2 = [
-                [43.34041976928711, -8.404894828796387, "571"],
-                [43.34041976928711, -8.404894828796387, "571"],
-                [43.34041976928711, -8.404894828796387, "571"],
-                [43.34041976928711, -8.404894828796387, "571"],
-                [43.37440490722656, -8.431958198547363, "571"],
-                [43.37440490722656, -8.431958198547363, "571"],
-                [43.37440490722656, -8.431958198547363, "571"],
-                [43.37440490722656, -8.431958198547363, "571"],
-                [43.37440490722656, -8.431958198547363, "571"],
-                [43.37440490722656, -8.431958198547363, "571"],
-                [43.37440490722656, -8.431958198547363, "571"],
-                [43.37440490722656, -8.431958198547363, "571"],
-            ]
-            console.log(addressPoints2)
+            //console.log(addressPoints)
+
             addressPoints = addressPoints.map(function (p) {
                 return [p[0], p[1]];
             });
-            var heat = L.heatLayer(addressPoints, {radius: 25, maxZoom: 13}).addTo(map).addTo(map);
+            var heat = L.heatLayer(addressPoints, {
+                radius: 50, 
+                maxZoom: 13, 
+                minOpacity: 0, 
+                max: 1,
+                }).addTo(map).addTo(map);
         });
 
     function getPositionsIntensity(estaciones, csv) {
         var coordinates = {};
         var addressPoints = new Array();
-
+        var count;
         estaciones.data.forEach(function (element) {
-                coordinates[element.Feed.assetId] = [element.Feed.geometry.coordinates['1'], element.Feed.geometry.coordinates['0'], "571"];
-            }
-        );
-
-        console.log(coordinates);
-
-        csv.forEach(function (t) {
-            addressPoints.push(coordinates[t.ID_ORIGEN]);
+                coordinates[element.Feed.assetId] = [element.Feed.geometry.coordinates['1'], element.Feed.geometry.coordinates['0'], count];
+                
+                count = count + 0.1;
         });
 
-        console.log(addressPoints)
+        csv.forEach(function (t) {
+            if (parseInt(t.ID_ORIGEN) > 0) {
+                addressPoints.push(coordinates[t.ID_ORIGEN]);
+                }
+        });
 
         return addressPoints;
     }
