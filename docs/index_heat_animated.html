@@ -59,45 +59,40 @@
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
             }).addTo(map);
 
-            for (var i = 0; i < estaciones.data.length; i++) {
-                var el = estaciones.data[i];
-                var coor = el.Feed.geometry.coordinates;
 
-                L.marker([coor[1], coor[0]]).addTo(map)
-                    .bindPopup(el.Feed.assetName)
+            var index = 0;
+            setInterval(function(){
+                var count=0;
+                    map.eachLayer(function (layer) {
+                        if (count > 0) {
+                            map.removeLayer(layer);
+                        }
+                        count += 1;
+                    });
+                    printMarkers(map, estaciones);
+                    var filtered = getFilteredCSV(csv, biciDates[index][0], biciDates[index][1])
 
-            }
+                    var addressPoints = getPositionsIntensity(estaciones, filtered);
 
+                    addressPoints = addressPoints.map(function (p) {
+                        return [p[0], p[1]];
+                    });
 
-            biciDates.forEach(function (bDates) {
+                    var heat = L.heatLayer(addressPoints, {
+                        radius: 30,
+                        maxZoom: 1000,
+                        blur: 30,
+                    }).addTo(map);
+                    if (index>11) {
+                        index=0;
+                    }else{
+                        index+=1;
+                    }
+                }, 2000);
+                
 
-                var filtered = getFilteredCSV(csv, bDates[0], bDates[1])
-
-                //var addressPoints = getPositionsIntensity(estaciones, csv);
-                var addressPoints = getPositionsIntensity(estaciones, filtered);
-                console.log(addressPoints);
-
-                addressPoints = addressPoints.map(function (p) {
-                    return [p[0], p[1]];
-                });
-
-                var heat = L.heatLayer(addressPoints, {
-                    radius: 30,
-                    maxZoom: 1000,
-                    blur: 30,
-                }).addTo(map);
-
-                //map.removeLayer(heat)
-
-            });
-        }).await(function(elapsed) {
-        console.log(elapsed);
-    }, 150);
-
-    var t = timer.interval(function() {
-        console.log("Prueba")
-        }, 1000);
-
+            //});
+        });
 
     function getPositionsIntensity(estaciones, csv, date) {
         var coordinates = {};
@@ -125,7 +120,16 @@
         );
     }
 
+function printMarkers(map, estaciones) {
+    for (var i = 0; i < estaciones.data.length; i++) {
+        var el = estaciones.data[i];
+        var coor = el.Feed.geometry.coordinates;
 
+        L.marker([coor[1], coor[0]]).addTo(map)
+            .bindPopup(el.Feed.assetName)
+
+    }
+}
 </script>
 </body>
 </html>
