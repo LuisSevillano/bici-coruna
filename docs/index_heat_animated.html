@@ -12,6 +12,8 @@
             integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
             crossorigin=""></script>
     <script src="leaflet-heat.js"></script>
+    <script src="https://d3js.org/d3-timer.v1.min.js"></script>
+
 
     <style media="screen">
         #map {
@@ -26,6 +28,24 @@
 
     var dsv = d3.dsvFormat(";", "utf-8");
 
+    var biciDates = [
+        [new Date("2015-7-1"), new Date("2015-7-31")],
+        [new Date("2015-8-1"), new Date("2015-8-31")],
+        [new Date("2015-9-1"), new Date("2015-9-30")],
+        [new Date("2015-10-1"), new Date("2015-10-31")],
+        [new Date("2015-11-1"), new Date("2015-11-30")],
+        [new Date("2015-12-1"), new Date("2015-12-31")],
+        [new Date("2016-1-1"), new Date("2016-1-31")],
+        [new Date("2016-2-1"), new Date("2016-2-29")],
+        [new Date("2016-3-1"), new Date("2016-3-31")],
+        [new Date("2016-4-1"), new Date("2016-4-30")],
+        [new Date("2016-5-1"), new Date("2016-5-31")],
+        [new Date("2016-6-1"), new Date("2016-6-30")],
+        [new Date("2016-7-1"), new Date("2016-7-31")],
+    ];
+
+    var map = L.map('map').setView([43.3609723, -8.4152847], 13);
+
     d3.queue()
         .defer(d3.json, 'estaciones.json')
         .defer(d3.request, "hackatino_2017_bicicoruna.csv")
@@ -33,7 +53,6 @@
 
             var csv = dsv.parse(xhrBikes.responseText)
             var data = getPositionsIntensity(estaciones, csv);
-            var map = L.map('map').setView([43.3609723, -8.4152847], 13);
 
             L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
                 maxZoom: 19,
@@ -49,29 +68,36 @@
 
             }
 
-            var filterDateInitial = new Date("2015-10-1");
-            var filterDateEnd = new Date("2015-10-31");
 
-            var filtered = csv.filter(function (d) {
-                    var inicio = new Date(d.INICIO_TRAYECTO);
-                    return (inicio > filterDateInitial && inicio < filterDateEnd)
-                }
-            );
+            biciDates.forEach(function (bDates) {
 
-            //var addressPoints = getPositionsIntensity(estaciones, csv);
-            var addressPoints = getPositionsIntensity(estaciones, filtered);
-            console.log(addressPoints);
+                var filtered = getFilteredCSV(csv, bDates[0], bDates[1])
 
-            addressPoints = addressPoints.map(function (p) {
-                return [p[0], p[1]];
+                //var addressPoints = getPositionsIntensity(estaciones, csv);
+                var addressPoints = getPositionsIntensity(estaciones, filtered);
+                console.log(addressPoints);
+
+                addressPoints = addressPoints.map(function (p) {
+                    return [p[0], p[1]];
+                });
+
+                var heat = L.heatLayer(addressPoints, {
+                    radius: 30,
+                    maxZoom: 1000,
+                    blur: 30,
+                }).addTo(map);
+
+                //map.removeLayer(heat)
+
             });
-            var heat = L.heatLayer(addressPoints, {
-                radius: 30,
-                maxZoom: 1000,
-                blur: 30,
-            }).addTo(map);
+        }).await(function(elapsed) {
+        console.log(elapsed);
+    }, 150);
 
-        });
+    var t = timer.interval(function() {
+        console.log("Prueba")
+        }, 1000);
+
 
     function getPositionsIntensity(estaciones, csv, date) {
         var coordinates = {};
@@ -89,6 +115,14 @@
         });
 
         return addressPoints;
+    }
+
+    function getFilteredCSV(csv, initialDate, finalDate) {
+        return csv.filter(function (d) {
+                var inicio = new Date(d.INICIO_TRAYECTO);
+                return (inicio > initialDate && inicio < finalDate)
+            }
+        );
     }
 
 
