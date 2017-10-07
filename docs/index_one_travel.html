@@ -31,7 +31,13 @@
 
             var csv = dsv.parse(xhrBikes.responseText)
             
-            var map = L.map('map').setView([43.3609723,-8.4152847], 13);
+            var markers = L.layerGroup(),
+                circles = L.layerGroup(),
+                heatPoints = L.layerGroup();
+
+            var map = L.map('map',{
+                          layers: [circles]
+                      }).setView([43.3609723,-8.4152847], 13);
 
             L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
               	maxZoom: 19,
@@ -68,10 +74,6 @@
             var radius = d3.scaleSqrt()
                 .domain([0, max])
                 .range([0, 400]);
-            
-            var markers = L.layerGroup(),
-                circles = L.layerGroup(),
-                heatPoints = L.layerGroup();
 
             for (var i = 0; i < estaciones.data.length; i++) {
                 var el = estaciones.data[i],
@@ -115,7 +117,7 @@
             	 "Heatmap": heatPoints,
             };
             L.control.layers(overlays).addTo(map);
-            console.log(map);
+            
         });
 
 
