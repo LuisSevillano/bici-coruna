@@ -29,7 +29,7 @@
     var dsv = d3.dsvFormat(";", "utf-8");
 
     var biciDates = [
-        [new Date("2015-7-1"), new Date("2015-7-31")],
+        // [new Date("2015-7-1"), new Date("2015-7-31")],
         [new Date("2015-8-1"), new Date("2015-8-31")],
         [new Date("2015-9-1"), new Date("2015-9-30")],
         [new Date("2015-10-1"), new Date("2015-10-31")],
@@ -41,7 +41,7 @@
         [new Date("2016-4-1"), new Date("2016-4-30")],
         [new Date("2016-5-1"), new Date("2016-5-31")],
         [new Date("2016-6-1"), new Date("2016-6-30")],
-        [new Date("2016-7-1"), new Date("2016-7-31")],
+        // [new Date("2016-7-1"), new Date("2016-7-31")],
     ];
 
     var map = L.map('map').setView([43.3609723, -8.4152847], 13);
@@ -70,6 +70,11 @@
                         count += 1;
                     });
                     printMarkers(map, estaciones);
+
+                    var marker = new L.marker([43.39, -8.47], { opacity: 0.01 }); //opacity may be set to zero
+                    marker.bindTooltip(formatDate(biciDates[index][0]), {permanent: true, className: "my-label", offset: [0, 0] });
+                    marker.addTo(map)
+
                     var filtered = getFilteredCSV(csv, biciDates[index][0], biciDates[index][1])
 
                     var addressPoints = getPositionsIntensity(estaciones, filtered);
@@ -83,7 +88,7 @@
                         maxZoom: 1000,
                         blur: 50,
                     }).addTo(map);
-                    if (index>11) {
+                    if (index>9) {
                         index=0;
                     }else{
                         index+=1;
@@ -118,6 +123,21 @@
                 return (inicio > initialDate && inicio < finalDate)
             }
         );
+    }
+
+    function formatDate(date) {
+        var monthNames = [
+            "Agosto", "Febrero", "Marzo",
+            "Abril", "Mayo", "Junio", "Julio",
+            "Agosto", "Septiembre", "Octobre",
+            "Noviembre", "Diciembre"
+        ];
+
+        var day = date.getDate();
+        var monthIndex = date.getMonth();
+        var year = date.getFullYear();
+
+        return monthNames[monthIndex] + ' ' + year;
     }
 
 function printMarkers(map, estaciones) {
