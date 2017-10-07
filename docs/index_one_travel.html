@@ -35,8 +35,17 @@
               	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
             }).addTo(map);
             
-            var filtered = csv.filter(function(d){
-                return d.ID_ORIGEN == d.ID_DESTINO && !isNaN(d.ID_DESTINO);
+            var filtered = csv.filter(function(d, i){
+                var inicio = new Date(d.INICIO_TRAYECTO),
+                    fin = new Date(d.FIN_TRAYECTO),
+                    isTravel = true;
+                    
+                    // 300000 = 1 minuto
+                    if (fin - inicio < 300000) {
+                        isTravel = false;
+                    }
+                    
+                return d.ID_ORIGEN == d.ID_DESTINO && !isNaN(d.ID_DESTINO) && isTravel;
             })
             
             var byStops = d3.nest()
@@ -44,11 +53,11 @@
                     return d.ID_ORIGEN;
                 })
                 .entries(filtered);
-            
+          
             var byIds = [];
             var max = 0;
             
-    
+            
             byStops.forEach(function(d){
                     byIds[d.key] = d;
                     max = d.values.length > max ? d.values.length : max;
@@ -65,7 +74,7 @@
                     
                     titulo += ": " + byIds[idEstacion].values.length + " viajes";
                     intensity = (byIds[idEstacion].values.length / max);
-                    console.log(intensity, byIds[idEstacion].values.length, max);
+                    
                 }
                 L.marker([coor[1], coor[0]]).addTo(map)
                   .bindPopup(titulo)
