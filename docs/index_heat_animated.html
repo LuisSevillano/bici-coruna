@@ -79,9 +79,9 @@
                     });
 
                     var heat = L.heatLayer(addressPoints, {
-                        radius: 30,
+                        radius: 40,
                         maxZoom: 1000,
-                        blur: 30,
+                        blur: 50,
                     }).addTo(map);
                     if (index>11) {
                         index=0;
@@ -89,7 +89,7 @@
                         index+=1;
                     }
                 }, 2000);
-                
+
 
             //});
         });
