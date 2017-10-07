@@ -57,11 +57,14 @@
             var byIds = [];
             var max = 0;
             
-            
             byStops.forEach(function(d){
                     byIds[d.key] = d;
                     max = d.values.length > max ? d.values.length : max;
                 })
+
+            var radius = d3.scaleSqrt()
+                .domain([0, max])
+                .range([0, 400]);
             
             for (var i = 0; i < estaciones.data.length; i++) {
               var el = estaciones.data[i],
@@ -75,16 +78,24 @@
                     titulo += ": " + byIds[idEstacion].values.length + " viajes";
                     intensity = (byIds[idEstacion].values.length / max);
                     
+                    L.circle([coor[1], coor[0]], radius(byIds[idEstacion].values.length), {
+                  		color: 'white',
+                  		fillColor: 'steelblue',
+                  		fillOpacity: 0.5,
+                      weight:.7
+                  	}).addTo(map).bindPopup(titulo);
                 }
-                L.marker([coor[1], coor[0]]).addTo(map)
-                  .bindPopup(titulo)
-                
-                var heat = L.heatLayer([
-                  	[coor[1], coor[0], intensity] // lat, lng, intensity
-                  ], {
-                      radius: 25,
-                      maxZoom: map._zoom,
-                  }).addTo(map);
+                // Marcadores por defecto
+                // L.marker([coor[1], coor[0]]).addTo(map)
+                //   .bindPopup(titulo)
+
+                // Heatmap
+                // var heat = L.heatLayer([
+                //   	[coor[1], coor[0], intensity] // lat, lng, intensity
+                //   ], {
+                //       radius: 25,
+                //       maxZoom: map._zoom,
+                //   }).addTo(map);
                   
             }
         });
