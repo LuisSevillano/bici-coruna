@@ -55,22 +55,21 @@
             addressPoints = addressPoints.map(function (p) {
                 return [p[0], p[1]];
             });
+            console.log(addressPoints)
             var heat = L.heatLayer(addressPoints, {
-                radius: 50, 
-                maxZoom: 13, 
-                minOpacity: 0, 
-                max: 1,
-                }).addTo(map).addTo(map);
+                radius: 30,
+                 maxZoom: 1000,
+                //max: 1,
+                blur: 30,
+                }).addTo(map);
         });
 
     function getPositionsIntensity(estaciones, csv) {
         var coordinates = {};
         var addressPoints = new Array();
-        var count;
         estaciones.data.forEach(function (element) {
-                coordinates[element.Feed.assetId] = [element.Feed.geometry.coordinates['1'], element.Feed.geometry.coordinates['0'], count];
-                
-                count = count + 0.1;
+                coordinates[element.Feed.assetId] = [element.Feed.geometry.coordinates['1'], element.Feed.geometry.coordinates['0']];
+
         });
 
         csv.forEach(function (t) {
