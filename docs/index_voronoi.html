@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="//d3js.org/d3.v4.js" charset="utf-8"></script>
+    <script src="//d3js.org/topojson.v1.js"></script>
+    <style media="screen">
+        .land {
+            fill: #ddd;
+        }
+
+        .state-borders {
+            fill: none;
+            stroke: #fff;
+        }
+
+        .stations-arc {
+            fill: none;
+        }
+
+        .stations:hover .stations-arc {
+            stroke: DarkOrange ;
+        }
+
+        .stations-cell {
+            fill: none;
+            stroke: #000;
+            stroke-opacity: 0.1;
+            pointer-events: all;
+        }
+    </style>
+  </head>
+  <body>
+    <svg width="1000" height="600"></svg>
+    <script>
+
+      var dsv = d3.dsvFormat(";", "utf-8");
+
+      d3.queue()
+          .defer(d3.json, 'estaciones.json')
+          .defer(d3.json, 'map.json')
+          .defer(d3.request, "hackatino_2017_bicicoruna.csv")
+          .await(ready);
+
+      function ready(error, estaciones, map, xhrCsv){
+          if(error) throw error;
+          
+          var csv = dsv.parse(xhrCsv.responseText)
+        
+          var myregex = new RegExp("[^a-zA-Z \-]");
+
+          var filtered = csv.filter(function(d, i){
+              var inicio = new Date(d.INICIO_TRAYECTO),
+                  fin = new Date(d.FIN_TRAYECTO),
+                  isTravel = true;
+                  
+                  // 300000 = 1 minuto
+                  if (fin - inicio < 300000) {
+                      isTravel = false;
+                  }
+                  
+              return !isNaN(d.ID_DESTINO) && isTravel;
+          })
+
+        
+          var stops = d3.nest()
+              .key(function(d){
+                  return d.DESTINO
+              })
+              .entries(filtered)
+          
+          var svg = d3.select("svg"),
+              width = +svg.attr("width"),
+              height = +svg.attr("height");
+          
+          var topology = topojson.feature(map, map.objects.coruna)
+
+          var projection = d3.geoMercator()
+               .translate([width / 2, height / 2]);
+
+          var radius = d3.scaleSqrt()
+              .domain([0, 100])
+              .range([0, 14]);
+
+          var path = d3.geoPath()
+              .projection(projection)
+              .pointRadius(2.5);
+
+          var bounds = d3.geoBounds(topology),
+              center = d3.geoCentroid(topology);
+
+          // Compute the angular distance between bound corners
+          var distance = d3.geoDistance(bounds[0], bounds[1]),
+              scale = height / distance / Math.sqrt(2);
+
+          // Update the projection scale and centroid
+          projection.scale(scale).center(center);
+
+          var voronoi = d3.voronoi()
+              .extent([[-1, -1], [width + 1, height + 1]]);
+
+          var newEstaciones = estaciones.data.map(function(d){
+              return {
+                id: d.Feed.assetId,
+                name: d.Feed.assetName,
+                0: d.Feed.geometry.coordinates[0],
+                1: d.Feed.geometry.coordinates[1],
+                arcs : {type: "MultiLineString", coordinates: []}
+              }
+          })
+        
+          csv = csv.filter(function(d){
+              return !isNaN(d.ID_DESTINO)
+          })
+          var combinations = {};
+          
+          for (var i = 0; i < csv.length; i++) {
+              var temp = combinations[[csv[i].ORIGEN,csv[i].DESTINO]]
+              
+              if ([csv[i].ORIGEN,csv[i].DESTINO] in combinations) {
+                  //console.log("entra", temp);
+                  combinations[[csv[i].ORIGEN,csv[i].DESTINO]] += 1
+              }else {
+                  combinations[[csv[i].ORIGEN,csv[i].DESTINO]] = 1
+              }
+          }
+          
+          var zz = d3.entries(combinations).map(function(d){
+              return {
+                "Origen": d.key.split(",")[0],
+                "Destino": d.key.split(",")[1],
+                "value": d.value,
+                "arcs": {type: "MultiLineString", coordinates: []}
+              }
+          })
+          
+          var estacionesData = d3.map(newEstaciones, function(d) { return d.id; });
+      
+          csv.forEach(function(trip,i) {
+              var source = estacionesData.get(trip.ID_ORIGEN),
+                  target = estacionesData.get(trip.ID_DESTINO);
+            
+              source.arcs.coordinates.push([source, target]);
+              target.arcs.coordinates.push([target, source]);
+              
+          });
+          
+          bikes = newEstaciones
+              .filter(function(d) { return d.arcs && d.arcs.coordinates.length; });
+
+          svg.append("path")
+              .datum(topojson.feature(map, map.objects.coruna))
+              .attr("class", "land")
+              .attr("d", path);
+
+          // svg.append("path")
+          //     .datum(topojson.mesh(us, us.objects.states, function(a, b) { return a !== b; }))
+          //     .attr("class", "state-borders")
+          //     .attr("d", path);
+
+          svg.append("path")
+              .datum({type: "MultiPoint", coordinates: bikes})
+              .attr("class", "stations-dots")
+              .attr("d", function(d){return path(d)});
+
+          var stations = svg.selectAll(".stations")
+            .data(bikes)
+            .enter().append("g")
+              .attr("class", "stations");
+          //
+          stations.append("title")
+              .text(function(d) { return d.name + "\n" + d.arcs.coordinates.length + " viajes"; });
+          //
+          stations.append("path")
+              .attr("class", "stations-arc")
+              .attr("d", function(d) { return path(d.arcs); });
+          
+          stations.append("path")
+              .data(voronoi.polygons(bikes.map(projection)))
+              .attr("class", "stations-cell")
+              .attr("d", function(d) { return d ? "M" + d.join("L") + "Z" : null; });
+          }
+    </script>
+  </body>
+</html>
