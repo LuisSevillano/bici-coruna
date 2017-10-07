@@ -17,11 +17,16 @@
   <body>
   <div id="map"></div>
   <script>
+
+    var dsv = d3.dsvFormat(";", "utf-8");
+
     d3.queue()
         .defer(d3.json, 'estaciones.json')
-        .await(function(error, estaciones) {
-            console.log(estaciones.data.length);
+        .defer(d3.request, "hackatino_2017_bicicoruna.csv")
+        .await(function(error, estaciones, xhrBikes) {
 
+            var csv = dsv.parse(xhrBikes.responseText)
+            console.log(csv);
             var map = L.map('map').setView([43.3609723,-8.4152847], 13  );
 
             L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
