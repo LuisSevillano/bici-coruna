@@ -58,9 +58,9 @@
             
             var map = L.map('map').setView([43.3609723,-8.4152847], 13);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-              	maxZoom: 19,
-              	attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>, Tiles courtesy of <a href="http://hot.openstreetmap.org/" target="_blank">Humanitarian OpenStreetMap Team</a>'
+            L.tileLayer('https://{s}.tile.openstreetmap.se/hydda/full/{z}/{x}/{y}.png', {
+              	maxZoom: 18,
+              	attribution: 'Tiles courtesy of <a href="http://openstreetmap.se/" target="_blank">OpenStreetMap Sweden</a> &mdash; Map data &copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }).addTo(map);
             
             var filtered = csv.filter(function(d, i){
@@ -108,7 +108,7 @@
 	                    intensity = (stopsByIds[idEstacion].values.length / max);
 
 	                    //If intensity is very poor, we add intensity minimal 0.4
-						intensity = intensity < 0.4 ? 0.4 : intensity;
+					       intensity = intensity < 0.4 ? 0.4 : intensity;
 	                    // Heatmap
 	                    var heat = L.heatLayer([
 		                  	[coor[1], coor[0], intensity] // lat, lng, intensity
@@ -119,7 +119,7 @@
 	                }
 	                // Marcadores por defecto
 	                L.marker([coor[1], coor[0]]).addTo(map)
-	                  .bindPopup(titulo)                  
+	                  .bindPopup(titulo)
 	            }
 	            document.getElementById("legends").innerHTML = 'Has salido de '+ byStops.length + ' estaciones y has hecho un total de ' + totalTravel + ' salidas';
             }else {
