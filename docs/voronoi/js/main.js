@@ -1,7 +1,7 @@
 d3
   .queue()
-  .defer(d3.json, "data/data.json")
-  .defer(d3.json, "data/map.json")
+  .defer(d3.json, "./data/data.json")
+  .defer(d3.json, "./data/map.json")
   .await(ready);
 
 var data, map;
