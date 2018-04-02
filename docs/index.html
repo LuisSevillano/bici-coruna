@@ -10,11 +10,11 @@
   <body>
       <div class="container">
         <div class="wrapper">
-          
+
             <h1>Hackatiño Mobilidade Sostible</h1>
             <div class="intro">
                 <p>El diez de octubre de 2017 se celebró el Hackatiño de Mobilidade Sostible. En torno a 60 personas se dieron cita en el Centro Ágora de la ciudad de A Coruña para trabajar sobre sostenibilidad en la Ciudad. Los participantes contaban con varias fuentes de datos facilitadas por el Ayuntamiento de la ciudad: histórico de uso de bicicleta, medios de transporte en tiempo real, etc.</p>
-                <p>Esta web es fruto del trabajo de uno de los grupos formados en la jornada. Este gurpo trabajó con los datos sobre el uso de bicicoruña y llegó a producir tres mapas con Leaflet y uno con D3js: un mapa de calor sobre el uso de bicicoruña, un segundo mapa con aquellas estaciones que tienen como punto de partida y llegada la misma estación, una aplicación para consultar el histórico de uso de un usuario introduciendo el id de usuario y un mapa que conecta todas las combinaciones posibles entre estaciones.</p>
+                <p>Esta web es fruto del trabajo de uno de los grupos formados en la jornada. Este grupo trabajó con los datos sobre el uso de bicicoruña y llegó a producir tres mapas con Leaflet y uno con D3js: un mapa de calor sobre el uso de bicicoruña, un segundo mapa con aquellas estaciones que tienen como punto de partida y llegada la misma estación, una aplicación para consultar el histórico de uso de un usuario introduciendo el id de usuario y un mapa que conecta todas las combinaciones posibles entre estaciones.</p>
                 <p>Este es un proyecto libre alojado en <b>Github</b>, siéntete libre para hacer cualquier sugerencia, abrir issues o pull request. Enlace al <a href="https://github.com/LuisSevillano/bici-coruna">repositorio</a>.</p>
                 <p>Puedes consultar los mapas en los siguientes enlaces:</p>
             </div>
@@ -28,53 +28,58 @@
                 <span>Mapa de calor animado de uso por meses</span>
             </a>
             <a href="index_one_user.html" class="gallery" style="background-image: url('img/index_one_user.png');">
-                <span>Mapa de calor de un usario</span>
+                <span>Mapa de calor de un usuario</span>
             </a>
-            <a href="index_voronoi.html" class="gallery" style="background-image: url('img/index_voronoi.png');">
+            <a href="voronoi/index.html" class="gallery" style="background-image: url('img/index_voronoi.png');">
                 <span>Mapa de trayectos mas comunes</span>
             </a>
       </div>
     </div>
     <script type="text/javascript">
     // taken from https://observablehq.com/
-    var then,
-        texts = [],
-        characters = [],
-        duration = 250,
-        interval = 20,
-        sub = {"‘": "'", "’": "'", "“": '"', "”": '"'};
+var then,
+  texts = [],
+  characters = [],
+  duration = 250,
+  interval = 20,
+  sub = { "‘": "'", "’": "'", "“": '"', "”": '"' };
 
-    function visitAll(node, visit) {
-        var child = node.firstChild;
-        while (child) visitAll(child, visit), child = child.nextSibling;
-        visit(node);
-    }
+function visitAll(node, visit) {
+  var child = node.firstChild;
+  while (child) visitAll(child, visit), (child = child.nextSibling);
+  visit(node);
+}
 
-    function tick() {
-        for (var k = 0, now = Date.now() - then, t, x; k < texts.length; ++k) {
-            var text = texts[k], index = text.index;
-            text.node.textContent = text.value.replace(/\w/g, function(c) {
-                t = Math.max(0, (now - Math.sqrt(index++) * interval) / duration), x = Math.random();
-                return x <= t ? c : characters[(x - t) / (1 - t) * characters.length | 0];
-            });
-            if (t >= 1) texts.splice(k--, 1);
-        }
-        if (texts.length) requestAnimationFrame(tick);
-    }
-
-    visitAll(document.querySelector("body"), function(node) {
-        if (node.nodeType === 3) {
-            var text = node.textContent;
-            if (!/\w/.test(text))
-                return;
-            texts.push({node: node, value: text, index: characters.length});
-            text.replace(/\w/g, function(c) { characters.push(c); });
-        }
+function tick() {
+  for (var k = 0, now = Date.now() - then, t, x; k < texts.length; ++k) {
+    var text = texts[k],
+      index = text.index;
+    text.node.textContent = text.value.replace(/\w/g, function(c) {
+      (t = Math.max(0, (now - Math.sqrt(index++) * interval) / duration)),
+        (x = Math.random());
+      return x <= t
+        ? c
+        : characters[((x - t) / (1 - t) * characters.length) | 0];
     });
+    if (t >= 1) texts.splice(k--, 1);
+  }
+  if (texts.length) requestAnimationFrame(tick);
+}
 
-    then = Date.now() + 100;
+visitAll(document.querySelector("body"), function(node) {
+  if (node.nodeType === 3) {
+    var text = node.textContent;
+    if (!/\w/.test(text)) return;
+    texts.push({ node: node, value: text, index: characters.length });
+    text.replace(/\w/g, function(c) {
+      characters.push(c);
+    });
+  }
+});
 
-    tick();
-    </script>
+then = Date.now() + 100;
+
+tick();
+</script>
   </body>
 </html>

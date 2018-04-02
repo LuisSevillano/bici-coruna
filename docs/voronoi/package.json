@@ -1,0 +1,33 @@
+{
+  "name": "voronoi-coruna",
+  "version": "1.0.0",
+  "description": "voronoi map with public bike data",
+  "main": "index.js",
+  "scripts": {
+    "getData": "node scripts/index.js",
+    "prepublish": "npm run getData",
+    "server": "http-server -c-1",
+    "start": "npm run server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LuisSevillano/bike-voronoi.git"
+  },
+  "keywords": [
+    "d3",
+    "voronoi"
+  ],
+  "author": "Luis Sevillano",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/LuisSevillano/bike-voronoi/issues"
+  },
+  "homepage": "https://github.com/LuisSevillano/bike-voronoi#readme",
+  "devDependencies": {
+    "csv": "^2.0.0",
+    "d3": "^4.11.0",
+    "d3-dsv": "^1.0.7",
+    "debug": "^3.1.0",
+    "fs": "0.0.1-security"
+  }
+}

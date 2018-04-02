@@ -1,0 +1,210 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 62.5%;
+  font-family: "Roboto", sans-serif;
+
+  -webkit-user-select: none; /* Safari 3.1+ */
+  -moz-user-select: none; /* Firefox 2+ */
+  -ms-user-select: none; /* IE 10+ */
+  user-select: none; /* Standard syntax */
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+}
+.wrapper {
+  width: 100%;
+  position: relative;
+}
+.legend {
+  pointer-events: none;
+}
+.legend path {
+  display: none;
+}
+.legend line {
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+.notes {
+  padding: 15px;
+  border: 2px solid #777777;
+  margin: 10px;
+}
+.note,
+.note-circle {
+  display: inline-block;
+  font-size: 1rem;
+  color: rgb(80, 80, 80);
+  font-style: italic;
+  font-family: serif;
+}
+.note .pill {
+  margin: 0 2px;
+}
+.notes-title {
+  font-size: 1.05rem;
+  font-style: bold;
+}
+/* ------------- BOX -------------*/
+#results {
+  /*display: none;*/
+  line-height: 1.2em;
+  position: absolute;
+  left: 1rem;
+  top: 1rem;
+  font-size: 1rem;
+  pointer-events: none;
+  visibility: hidden;
+}
+#results.active {
+  visibility: visible;
+}
+.pill {
+  display: inline-block;
+  border-radius: 50%;
+  width: 0.61rem;
+  height: 0.6rem;
+  border: 2px solid white;
+  margin-left: 9px;
+}
+.name {
+  font-size: 1.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1rem;
+  margin-bottom: 0.1rem;
+  font-weight: 700;
+}
+.destinations {
+  margin-top: 1rem;
+  color: black;
+  font-weight: bold;
+}
+.value,
+.travels {
+  color: rgb(80, 80, 80);
+}
+.travels,
+.value,
+.first,
+.second,
+.third {
+  font-family: "Roboto Mono", monospace;
+}
+.destinations {
+  margin-bottom: 10px;
+}
+.first,
+.second,
+.third {
+  margin-bottom: 5px;
+}
+p {
+  margin-bottom: 0;
+}
+
+/* ------------- --- -------------*/
+
+.state-borders {
+  fill: none;
+  stroke: #fff;
+}
+.stations {
+  pointer-events: visible;
+}
+.stations-arc {
+  fill: none;
+}
+.lines line,
+.lines circle {
+  /*stroke: DarkOrange;*/
+  /*opacity: .8;*/
+  pointer-events: none;
+  visibility: hidden;
+  shape-rendering: geometricPrecision;
+}
+.stations.active path {
+  stroke: rgb(0, 0, 0);
+  stroke-opacity: 0.5;
+}
+.stations.active .lines line,
+.stations.active .lines circle,
+.stations:hover .lines line,
+.stations:hover .lines circle {
+  /*stroke: DarkOrange ;*/
+  visibility: visible;
+}
+
+.stations-dots {
+  pointer-events: none;
+  fill: rgb(251, 34, 34);
+  stroke: rgb(240, 240, 240);
+}
+.stations-cell.Castrillón {
+  mask: url(#mask-stripe);
+  cursor: no-drop;
+}
+.stations-cell {
+  fill: none;
+  cursor: pointer;
+  /*stroke: none;*/
+  stroke: rgb(55, 55, 55);
+  stroke-opacity: 0.1;
+  pointer-events: all;
+}
+.stations-cell.Castrillón {
+  fill: rgb(230, 230, 230);
+}
+path {
+  stroke-linejoin: round;
+}
+.city {
+  fill: rgb(240, 240, 240);
+  stroke: rgb(0, 0, 0);
+  stroke-width: 0.2;
+}
+.controls {
+  position: absolute;
+  right: 10px;
+  top: 12px;
+  min-width: 20px;
+  min-height: 20px;
+  fill: #888;
+}
+.controls .animation-start {
+  display: block;
+}
+.controls.isActive .animation-pause {
+  display: block;
+}
+.controls.isActive .animation-start {
+  display: none;
+}
+.animation-start,
+.animation-pause {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  cursor: pointer;
+  position: relative;
+  top: 5px;
+}
+.controls .animation-pause {
+  display: none;
+}
+.wrapper > svg.map {
+  background-color: #d0e4e7;
+}
+.land {
+  fill: rgb(245, 245, 245);
+}
+.coast {
+  fill: none;
+  stroke: #76aeb6;
+  stroke-width: 1.5;
+}
+@media (min-width: 768px) {
+  .wrapper {
+    max-width: 950px;
+    margin: 0 auto;
+  }
+}

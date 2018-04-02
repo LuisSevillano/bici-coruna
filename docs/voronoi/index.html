@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Voronoi Coruña</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0"/>
+    <script src="js/d3.v4.min.js" charset="utf-8"></script>
+    <script src="js/topojson.v1.min.js"></script>
+    <script src="js/d3-scale-chromatic.v1.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono|Roboto:300,400,700" rel="stylesheet">
+    <link rel="stylesheet" href="style/styles.css">
+  </head>
+  <body>
+    <div class="wrapper">
+      <svg class="map" width="100%"></svg>
+      <div class="controls">
+        <svg class="animation-start"><path d="M13.89,7.08,3.88,1.3a1.06,1.06,0,0,0-1.6.92V13.78a1.06,1.06,0,0,0,1.6.92l10-5.78A1.06,1.06,0,0,0,13.89,7.08Z" transform="translate(-2.28 -1.15)"></path></svg>
+        <svg class="animation-pause active"><rect x="7.08" width="4.09" height="14.33" rx="1.04" ry="1.04"></rect><rect width="4.09" height="14.33" rx="1.04" ry="1.04"></rect></svg>
+      </div>
+      <div id="results">
+          <div class="name-box">
+              <div class="name">Matogrande</div>
+              <div class="travels">
+                  <span><span class="value">2.448</span> trips</span>
+              </div>
+          </div>
+          <div class="destinations">Most common trips:</div>
+          <div class="first">1)<div class="pill"></div> <span class="value">Tabacos</span></div>
+          <div class="second">2)<div class="pill"></div> <span class="value">Estación de Tren</span></div>
+          <div class="third">3)<div class="pill"></div> <span class="value">Monelos</span></div>
+      </div>
+      <div class="notes">
+        <div class="notes-title">Notes</div>
+        <div>
+          <p class="note">Both the color and the thickness of each line are calculated regard to the combination with the highest number of trips from each station.</p>
+        </div>
+        <div>
+          <p class="note">A red circle (<span class="pill" style="background-color: rgb(153, 0, 13)"></span>) it is shown at the top of a station when the most traveled trip has the same station as its point of departure and arrival.</p>
+        </div>
+        <div>
+          <p class="note">Trips of less than one minute duration has been removed.</p>
+        </div>
+      </div>
+    </div>
+    <script src="js/main.js"></script>
+  </body>
+</html>
